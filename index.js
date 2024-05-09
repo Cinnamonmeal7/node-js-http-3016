@@ -1,8 +1,15 @@
 'use strict';
 const http = require('node:http');
 const pug = require('pug');
+const auth = require('http-auth');
+const basic = auth.basic(
+  { realm: 'Enquetes Area.' },
+  (username, password, callback) => {
+    callback(username === 'guest' && password === 'xaXZJQmE');
+  }
+);
 const server = http
-  .createServer((req, res) => {
+  .createServer(basic.check((req, res) => {
     const now = new Date();
     console.info(`Requested by ${req.socket.remoteAddress}`);
     res.writeHead(200, {
@@ -69,7 +76,7 @@ const server = http
       default:
         break;
     }
-  })
+  }))
   .on('error', e => {
     console.error(`Server Error`, e);
   })
